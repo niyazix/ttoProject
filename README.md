@@ -7,9 +7,9 @@
 
 ## Ekran Görüntüleri
 
-| Admin Paneli — Giriş | Sayfa Yönetimi | İçerik Blokları |
+| Anasayfa | Admin Paneli — Giriş | Sayfa Yönetimi |
 |---|---|---|
-| *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* |
+| screenshots/login.png | *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* |
 
 | Haber Yönetimi | Duyuru Yönetimi | Kullanıcı & Rol Yönetimi |
 |---|---|---|
