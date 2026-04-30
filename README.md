@@ -9,7 +9,7 @@
 
 | Anasayfa | Admin Paneli — Giriş | Sayfa Yönetimi |
 |---|---|---|
-| screenshots/login.png | *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* |
+| [screenshots/login.png](https://github.com/niyazix/ttoProject/blob/main/screenshots/Anasayfa.png) | *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* |
 
 | Haber Yönetimi | Duyuru Yönetimi | Kullanıcı & Rol Yönetimi |
 |---|---|---|
