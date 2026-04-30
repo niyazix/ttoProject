@@ -1,0 +1,64 @@
+<!-- PAGE HEADER -->
+<section class="page-hero">
+  <div class="container">
+    <h1><i class="fa-solid fa-newspaper"></i> Haberler</h1>
+    <p>Teknoloji transferi, patent, inovasyon ve TTO etkinliklerine dair son gelişmeler.</p>
+  </div>
+</section>
+
+<!-- CATEGORY FILTER -->
+<div class="filter-bar container" *ngIf="categories.length">
+  <button class="filter-btn" [class.active]="selectedCategory === null" (click)="filterBy(null)">Tümü</button>
+  <button class="filter-btn" *ngFor="let c of categories"
+          [class.active]="selectedCategory === c.id"
+          (click)="filterBy(c.id)">{{ c.name }}</button>
+</div>
+
+<!-- LOADING -->
+<div class="loading-state container" *ngIf="loading">
+  <i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…
+</div>
+
+<!-- EMPTY -->
+<div class="empty-state container" *ngIf="!loading && !items.length">
+  <i class="fa-regular fa-newspaper"></i>
+  <p>Henüz haber bulunmuyor.</p>
+</div>
+
+<!-- GRID -->
+<section class="news-grid container" *ngIf="!loading && items.length">
+  <article class="news-card" *ngFor="let n of items">
+    <a [routerLink]="['/haberler', n.slug]" class="card-img-wrap">
+      <div class="card-img" [style.backgroundImage]="n.coverImageUrl ? 'url('+n.coverImageUrl+')' : ''">
+        <span *ngIf="!n.coverImageUrl" class="card-img-placeholder"><i class="fa-solid fa-image"></i></span>
+        <span *ngIf="n.isFeatured" class="badge-featured">Öne Çıkan</span>
+      </div>
+    </a>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="card-date"><i class="fa-regular fa-calendar"></i> {{ formatDate(n.publishDate || n.createdAt) }}</span>
+        <span class="card-cat" *ngIf="n.categoryName">{{ n.categoryName }}</span>
+      </div>
+      <h2 class="card-title">
+        <a [routerLink]="['/haberler', n.slug]">{{ n.title }}</a>
+      </h2>
+      <p class="card-summary">{{ n.summary }}</p>
+      <a [routerLink]="['/haberler', n.slug]" class="card-read-more">
+        Devamını Oku <i class="fa-solid fa-arrow-right fa-xs"></i>
+      </a>
+    </div>
+  </article>
+</section>
+
+<!-- PAGINATION -->
+<div class="pagination container" *ngIf="totalPages > 1">
+  <button class="page-btn" (click)="goPage(page - 1)" [disabled]="page === 1">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button class="page-btn" *ngFor="let p of pages"
+          [class.active]="p === page"
+          (click)="goPage(p)">{{ p }}</button>
+  <button class="page-btn" (click)="goPage(page + 1)" [disabled]="page === totalPages">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</div>

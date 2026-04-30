@@ -1,0 +1,77 @@
+<!-- LOADING -->
+<div class="loading-state container" *ngIf="loading">
+  <i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…
+</div>
+
+<!-- NOT FOUND -->
+<div class="not-found container" *ngIf="!loading && notFound">
+  <i class="fa-solid fa-circle-exclamation"></i>
+  <h2>Haber bulunamadı</h2>
+  <a routerLink="/haberler" class="btn btn-primary">← Haberlere Dön</a>
+</div>
+
+<!-- ARTICLE -->
+<ng-container *ngIf="!loading && news">
+  <!-- HERO -->
+  <div class="article-hero" [style.backgroundImage]="news.coverImageUrl ? 'url('+news.coverImageUrl+')' : ''">
+    <div class="hero-overlay">
+      <div class="container">
+        <div class="breadcrumb">
+          <a routerLink="/">Anasayfa</a>
+          <i class="fa-solid fa-chevron-right fa-xs"></i>
+          <a routerLink="/haberler">Haberler</a>
+          <i class="fa-solid fa-chevron-right fa-xs"></i>
+          <span>{{ news.title }}</span>
+        </div>
+        <span *ngIf="news.isFeatured" class="badge-featured">Öne Çıkan</span>
+        <h1>{{ news.title }}</h1>
+        <div class="article-meta">
+          <span *ngIf="news.publishDate || news.createdAt">
+            <i class="fa-regular fa-calendar"></i>
+            {{ formatDate(news.publishDate || news.createdAt) }}
+          </span>
+          <span *ngIf="news.author"><i class="fa-solid fa-user"></i> {{ news.author }}</span>
+          <span *ngIf="news.categoryName">
+            <i class="fa-solid fa-tag"></i> {{ news.categoryName }}
+          </span>
+          <span><i class="fa-solid fa-eye"></i> {{ news.viewCount }} görüntülenme</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="article-body container">
+    <div class="article-layout">
+      <!-- CONTENT -->
+      <article class="article-content">
+        <p class="article-summary" *ngIf="news.summary">{{ news.summary }}</p>
+        <div class="article-html" [innerHTML]="news.content"></div>
+
+        <!-- TAGS -->
+        <div class="article-tags" *ngIf="news.tags?.length">
+          <span class="tags-label"><i class="fa-solid fa-hashtag"></i> Etiketler:</span>
+          <span class="tag" *ngFor="let t of news.tags">{{ t }}</span>
+        </div>
+      </article>
+
+      <!-- SIDEBAR -->
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <h3>Bu Haberi Paylaş</h3>
+          <div class="share-btns">
+            <a class="share-btn share-twitter" href="https://twitter.com/intent/tweet?text={{ news.title }}" target="_blank" rel="noopener">
+              <i class="fa-brands fa-x-twitter"></i> Twitter
+            </a>
+            <a class="share-btn share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url={{ news.slug }}" target="_blank" rel="noopener">
+              <i class="fa-brands fa-linkedin-in"></i> LinkedIn
+            </a>
+          </div>
+        </div>
+        <a routerLink="/haberler" class="back-btn">
+          <i class="fa-solid fa-arrow-left"></i> Tüm Haberler
+        </a>
+      </aside>
+    </div>
+  </div>
+</ng-container>

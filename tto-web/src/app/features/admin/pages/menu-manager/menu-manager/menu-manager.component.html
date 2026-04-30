@@ -1,0 +1,75 @@
+<div class="page-header">
+  <div><h1>Menü Yönetimi</h1><p>Navigasyon menüsünü düzenleyin</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Öğe</button>
+</div>
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead><tr><th>Başlık</th><th>Bağlantı</th><th>Hedef</th><th>Sıra</th><th>Durum</th><th style="width:100px">İşlem</th></tr></thead>
+    <tbody>
+      <tr *ngIf="!items.length"><td colspan="6" class="empty-cell">Menü öğesi bulunamadı.</td></tr>
+      <tr *ngFor="let item of items">
+        <td>
+          <span [style.paddingLeft.px]="item._depth * 20">
+            <i *ngIf="item._depth > 0" class="fa-solid fa-level-up-alt fa-xs" style="color:var(--text-light);margin-right:6px"></i>
+            <span class="fw-500">{{ item.title }}</span>
+          </span>
+        </td>
+        <td>
+          <span class="badge badge-info"    *ngIf="item.linkType === 'Page'">Sayfa</span>
+          <span class="badge badge-warning" *ngIf="item.linkType === 'Url'">URL</span>
+          <span class="badge badge-neutral" *ngIf="item.linkType === 'None'">Başlık</span>
+        </td>
+        <td><code style="font-size:12px;color:var(--text-muted)" *ngIf="item.url">{{ item.url }}</code><span *ngIf="!item.url">—</span></td>
+        <td>{{ item.sortOrder }}</td>
+        <td>
+          <span class="badge" [class.badge-success]="item.isActive" [class.badge-neutral]="!item.isActive">{{ item.isActive ? 'Aktif' : 'Pasif' }}</span>
+        </td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="Düzenle" (click)="openEdit(item)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-ghost btn-icon text-danger" title="Sil" (click)="delete(item)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer" *ngIf="showForm">
+  <div class="drawer-header"><h3>{{ editItem ? 'Öğeyi Düzenle' : 'Yeni Öğe' }}</h3><button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="drawer-body">
+    <div class="form-group"><label>Başlık</label><input type="text" class="form-control" [(ngModel)]="formData.title"></div>
+    <div class="form-group"><label>Bağlantı Türü</label>
+      <select class="form-control" [(ngModel)]="formData.linkType">
+        <option *ngFor="let t of linkTypes" [value]="t.value">{{ t.label }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="formData.linkType === 'page'"><label>Sayfa</label>
+      <select class="form-control" [(ngModel)]="formData.pageId">
+        <option [ngValue]="null">Seçin...</option>
+        <option *ngFor="let p of pages" [ngValue]="p.id">{{ p.title }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="formData.linkType === 'url'"><label>URL</label><input type="text" class="form-control" [(ngModel)]="formData.url" placeholder="/sayfa veya https://..."></div>
+    <div class="form-group"><label>Üst Menü Öğesi</label>
+      <select class="form-control" [(ngModel)]="formData.parentId">
+        <option [ngValue]="null">Kök seviye</option>
+        <option *ngFor="let i of items" [ngValue]="i.id" [disabled]="i._depth > 0">{{ i.title }}</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Sıra</label><input type="number" class="form-control" [(ngModel)]="formData.sortOrder" min="0"></div>
+    <div class="form-group"><label>İkon (fa-xxx)</label><input type="text" class="form-control" [(ngModel)]="formData.icon" placeholder="fa-home"></div>
+    <div class="form-check"><input type="checkbox" id="newTab" [(ngModel)]="formData.openInNewTab"><label for="newTab"> Yeni sekmede aç</label></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-primary" (click)="saveForm()" [disabled]="saving"><i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>{{ saving ? 'Kaydediliyor...' : 'Kaydet' }}</button>
+  </div>
+</div>
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Öğeyi Sil</h3><p><strong>{{ confirmDelete.title }}</strong> öğesini silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions"><button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button><button class="btn btn-danger" (click)="doDelete()">Sil</button></div>
+  </div>
+</div>

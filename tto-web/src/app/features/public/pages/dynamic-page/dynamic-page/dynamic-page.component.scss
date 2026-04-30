@@ -1,0 +1,51 @@
+.dynamic-page {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.dp-loading,
+.dp-not-found {
+  text-align: center;
+  padding: 3rem 0;
+  color: #666;
+}
+
+.dp-header h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: .75rem;
+}
+
+.dp-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dp-block {
+  &--richtext, &--html {
+    line-height: 1.7;
+    img { max-width: 100%; height: auto; }
+  }
+
+  &--banner {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &--video {
+    iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+    }
+  }
+
+  &--image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+}

@@ -1,0 +1,108 @@
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content container">
+    <span class="hero-badge"><i class="fa-solid fa-atom"></i> Teknoloji Transfer Ofisi</span>
+    <h1>Araştırmayı<br><span class="accent">Geleceğe</span> Taşıyoruz</h1>
+    <p>Patent, lisans, spin-off ve sanayi işbirlikleri ile üniversite araştırmalarını ticarileştiriyor,
+       bölgesel inovasyon ekosistemini güçlendiriyoruz.</p>
+    <div class="hero-actions">
+      <a routerLink="/iletisim" class="btn btn-accent btn-lg">Bize Ulaşın</a>
+      <a routerLink="/haberler" class="btn btn-lg hero-btn-ghost">Haberleri İncele <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+  </div>
+  <div class="hero-scroll"><i class="fa-solid fa-chevron-down"></i></div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section container">
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let s of stats">
+      <div class="stat-icon"><i class="fa-solid {{ s.icon }}"></i></div>
+      <div class="stat-value">{{ s.value }}</div>
+      <div class="stat-label">{{ s.label }}</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Hizmetlerimiz</span>
+      <h2>Size Nasıl Yardımcı Olabiliriz?</h2>
+      <p>Araştırma sonuçlarınızı değere dönüştürmek için sunduğumuz kapsamlı destek hizmetleri.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card" *ngFor="let s of services">
+        <div class="service-icon"><i class="fa-solid {{ s.icon }}"></i></div>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.desc }}</p>
+        <a routerLink="/iletisim" class="service-link">Detaylı Bilgi <i class="fa-solid fa-arrow-right fa-xs"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS & ANNOUNCEMENTS -->
+<section class="content-section container">
+  <div class="content-grid">
+
+    <!-- Latest News -->
+    <div class="content-col">
+      <div class="col-header">
+        <h2><i class="fa-solid fa-newspaper"></i> Son Haberler</h2>
+        <a routerLink="/haberler" class="see-all">Tümü <i class="fa-solid fa-arrow-right fa-xs"></i></a>
+      </div>
+      <div *ngIf="!latestNews.length" class="empty-state">
+        <i class="fa-regular fa-newspaper"></i>
+        <p>Henüz haber bulunmuyor.</p>
+      </div>
+      <article class="news-card" *ngFor="let n of latestNews">
+        <div class="news-img" [style.backgroundImage]="n.coverImageUrl ? 'url('+n.coverImageUrl+')' : ''">
+          <span *ngIf="!n.coverImageUrl" class="news-img-placeholder"><i class="fa-solid fa-image"></i></span>
+          <span *ngIf="n.isFeatured" class="news-badge">Öne Çıkan</span>
+        </div>
+        <div class="news-body">
+          <span class="news-date">{{ formatDate(n.publishDate || n.createdAt) }}</span>
+          <h3><a [routerLink]="['/haberler', n.slug]">{{ n.title }}</a></h3>
+          <p>{{ n.summary }}</p>
+        </div>
+      </article>
+    </div>
+
+    <!-- Announcements -->
+    <div class="content-col">
+      <div class="col-header">
+        <h2><i class="fa-solid fa-bullhorn"></i> Duyurular</h2>
+        <a routerLink="/duyurular" class="see-all">Tümü <i class="fa-solid fa-arrow-right fa-xs"></i></a>
+      </div>
+      <div *ngIf="!latestAnnouncements.length" class="empty-state">
+        <i class="fa-regular fa-bell"></i>
+        <p>Henüz duyuru bulunmuyor.</p>
+      </div>
+      <a class="announcement-item" *ngFor="let a of latestAnnouncements"
+         [routerLink]="['/duyurular', a.slug]">
+        <div class="ann-icon" [class.pinned]="a.isPinned">
+          <i class="fa-solid" [class.fa-thumbtack]="a.isPinned" [class.fa-bell]="!a.isPinned"></i>
+        </div>
+        <div class="ann-body">
+          <h4>{{ a.title }}</h4>
+          <span>{{ formatDate(a.publishDate || a.createdAt) }}</span>
+        </div>
+        <i class="fa-solid fa-chevron-right fa-xs"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container cta-inner">
+    <div>
+      <h2>Projenizi Hayata Geçirmeye Hazır mısınız?</h2>
+      <p>Uzman ekibimiz fikirden ticarileşmeye kadar her adımda yanınızda.</p>
+    </div>
+    <a routerLink="/iletisim" class="btn btn-accent btn-lg">Hemen İletişime Geçin</a>
+  </div>
+</section>

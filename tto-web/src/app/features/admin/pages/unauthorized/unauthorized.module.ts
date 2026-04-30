@@ -1,0 +1,18 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+import { UnauthorizedRoutingModule } from './unauthorized-routing.module';
+import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
+
+
+@NgModule({
+  declarations: [
+    UnauthorizedComponent
+  ],
+  imports: [
+    CommonModule, RouterModule,
+    UnauthorizedRoutingModule
+  ]
+})
+export class UnauthorizedModule { }

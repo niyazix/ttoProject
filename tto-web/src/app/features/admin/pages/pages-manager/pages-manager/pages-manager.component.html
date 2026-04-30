@@ -1,0 +1,232 @@
+<div class="page-header">
+  <div><h1>Sayfalar</h1><p>Dinamik sayfaları yönetin</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Sayfa</button>
+</div>
+
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead>
+      <tr><th>Başlık</th><th>Slug</th><th>Tür</th><th>Sıra</th><th>Durum</th><th style="width:140px">İşlem</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!items.length"><td colspan="6" class="empty-cell">Sayfa bulunamadı.</td></tr>
+      <tr *ngFor="let p of items">
+        <td>
+          <span class="fw-500">{{ p.title }}</span>
+          <span *ngIf="p.isSystem" class="badge badge-info" style="margin-left:8px;font-size:10px">Sistem</span>
+        </td>
+        <td><code style="font-size:12px;color:var(--text-muted)">/{{ p.slug }}</code></td>
+        <td>{{ p.pageType }}</td>
+        <td>{{ p.sortOrder }}</td>
+        <td>
+          <span class="badge" [class.badge-success]="p.isPublished" [class.badge-neutral]="!p.isPublished">
+            {{ p.isPublished ? 'Yayında' : 'Taslak' }}
+          </span>
+        </td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="İçerik Blokları" (click)="openBlocks(p)" style="color:var(--primary)">
+              <i class="fa-solid fa-layer-group"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon" title="Düzenle" (click)="openEdit(p)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon" [title]="p.isPublished ? 'Yayından Al' : 'Yayınla'" (click)="togglePublish(p)">
+              <i class="fa-solid" [class.fa-eye]="!p.isPublished" [class.fa-eye-slash]="p.isPublished"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon text-danger" title="Sil" [disabled]="p.isSystem" (click)="!p.isSystem && delete(p)">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── Page Form Drawer ─── -->
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer" *ngIf="showForm">
+  <div class="drawer-header">
+    <h3>{{ editItem ? 'Sayfayı Düzenle' : 'Yeni Sayfa' }}</h3>
+    <button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-group">
+      <label>Sayfa Başlığı <span class="req">*</span></label>
+      <input type="text" class="form-control" [(ngModel)]="pageForm.title" (input)="onTitleChange()" placeholder="Sayfa başlığı">
+    </div>
+    <div class="form-group">
+      <label>Slug (URL)</label>
+      <div class="slug-wrap">
+        <span class="slug-prefix">/</span>
+        <input type="text" class="form-control" [(ngModel)]="pageForm.slug" placeholder="sayfa-adi">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Sıralama</label>
+      <input type="number" class="form-control" [(ngModel)]="pageForm.sortOrder" min="0">
+    </div>
+    <div class="form-group">
+      <label>Meta Başlık <span class="text-muted" style="font-size:12px;font-weight:400">(SEO)</span></label>
+      <input type="text" class="form-control" [(ngModel)]="pageForm.metaTitle" placeholder="Arama motorlarında görünecek başlık">
+    </div>
+    <div class="form-group">
+      <label>Meta Açıklama <span class="text-muted" style="font-size:12px;font-weight:400">(SEO)</span></label>
+      <textarea class="form-control" [(ngModel)]="pageForm.metaDescription" rows="3" placeholder="Arama motorları için kısa açıklama (max 160 karakter)"></textarea>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-primary" (click)="savePage()" [disabled]="saving">
+      <i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>
+      {{ saving ? 'Kaydediliyor...' : 'Kaydet' }}
+    </button>
+  </div>
+</div>
+
+<!-- ─── Content Blocks Panel ─── -->
+<div class="drawer-overlay" *ngIf="showBlocks" (click)="showBlocks=false"></div>
+<div class="drawer drawer-xl" *ngIf="showBlocks">
+  <div class="drawer-header">
+    <h3><i class="fa-solid fa-layer-group" style="color:var(--primary)"></i> &nbsp;{{ blocksPage?.title }} — İçerik Blokları</h3>
+    <button (click)="showBlocks=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="blocks-header">
+      <span class="text-muted" style="font-size:14px">{{ blocks.length }} blok</span>
+      <button class="btn btn-primary btn-sm" (click)="openAddBlock()">
+        <i class="fa-solid fa-plus"></i> Blok Ekle
+      </button>
+    </div>
+    <div class="loading-row" *ngIf="blocksLoading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+    <div class="empty-cell" *ngIf="!blocksLoading && !blocks.length" style="border:1.5px dashed var(--border);border-radius:var(--radius-lg);padding:48px">
+      <i class="fa-solid fa-layer-group" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:12px"></i>
+      Henüz içerik bloğu yok.<br>
+      <button class="btn btn-primary btn-sm mt-3" (click)="openAddBlock()">İlk Bloğu Ekle</button>
+    </div>
+    <div class="block-item" *ngFor="let b of blocks; let i = index">
+      <div class="block-meta">
+        <div class="block-type-badge">{{ blockTypeLabel(b.blockType) }}</div>
+        <span class="text-muted" style="font-size:12px">Sıra: {{ b.sortOrder }}</span>
+        <span class="badge" [class.badge-success]="b.isActive" [class.badge-neutral]="!b.isActive" style="font-size:11px">
+          {{ b.isActive ? 'Aktif' : 'Gizli' }}
+        </span>
+      </div>
+      <div class="block-preview" *ngIf="b.content">
+        <div [innerHTML]="b.content | slice:0:200" class="block-preview-inner"></div>
+        <span *ngIf="b.content.length > 200" class="text-muted" style="font-size:11px">...devamı var</span>
+      </div>
+      <div class="block-actions">
+        <button class="btn btn-ghost btn-sm" (click)="openEditBlock(b)"><i class="fa-solid fa-pen"></i> Düzenle</button>
+        <button class="btn btn-ghost btn-sm text-danger" (click)="deleteBlock(b)"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showBlocks=false">Kapat</button>
+  </div>
+</div>
+
+<!-- ─── Block Form Drawer (over blocks panel) ─── -->
+<div class="drawer-overlay" *ngIf="showBlockForm" (click)="showBlockForm=false"></div>
+<div class="drawer" *ngIf="showBlockForm" style="z-index:202">
+  <div class="drawer-header">
+    <h3>{{ editBlock ? 'Bloğu Düzenle' : 'Yeni İçerik Bloğu' }}</h3>
+    <button (click)="showBlockForm=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-group">
+      <label>Blok Türü</label>
+      <select class="form-control" [(ngModel)]="blockForm.blockType">
+        <option *ngFor="let t of blockTypes" [value]="t.value">{{ t.label }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Sıralama</label>
+      <input type="number" class="form-control" [(ngModel)]="blockForm.sortOrder" min="0">
+    </div>
+
+    <!-- richtext / html / banner / gallery blocks -->
+    <div class="form-group" *ngIf="['richtext','html','banner'].includes(blockForm.blockType)">
+      <div class="editor-toolbar">
+        <span class="toolbar-label">{{ blockForm.blockType === 'html' ? 'Ham HTML' : 'İçerik (HTML)' }}</span>
+        <div class="toolbar-btns" *ngIf="blockForm.blockType !== 'html'">
+          <button type="button" (click)="insertBlockTag('h2')">H2</button>
+          <button type="button" (click)="insertBlockTag('h3')">H3</button>
+          <button type="button" (click)="insertBlockTag('p')">P</button>
+          <button type="button" (click)="insertBlockTag('strong')"><b>B</b></button>
+          <button type="button" (click)="insertBlockTag('em')"><i>I</i></button>
+          <button type="button" (click)="insertBlockTag('ul')">UL</button>
+          <button type="button" (click)="insertBlockTag('li')">LI</button>
+          <button type="button" (click)="insertBlockTag('a')">Link</button>
+          <button type="button" (click)="insertBlockTag('img')">Görsel</button>
+        </div>
+      </div>
+      <textarea id="block-content" class="form-control content-editor" [(ngModel)]="blockForm.content"
+                rows="16" placeholder="HTML içerik..."></textarea>
+    </div>
+
+    <!-- image block -->
+    <div *ngIf="blockForm.blockType === 'image'" class="form-group">
+      <label>Görsel URL</label>
+      <input type="text" class="form-control" [(ngModel)]="blockForm.content" placeholder="https://...">
+      <div class="cover-preview mt-2" *ngIf="blockForm.content">
+        <img [src]="blockForm.content" alt="önizleme">
+      </div>
+    </div>
+
+    <!-- video block -->
+    <div *ngIf="blockForm.blockType === 'video'" class="form-group">
+      <label>Video Embed Kodu veya URL</label>
+      <textarea class="form-control" [(ngModel)]="blockForm.content" rows="4"
+                placeholder="YouTube/Vimeo embed kodu: <iframe ...></iframe>"></textarea>
+    </div>
+
+    <!-- gallery block -->
+    <div *ngIf="blockForm.blockType === 'gallery'" class="form-group">
+      <label>Görsel URL'leri (her satıra bir URL)</label>
+      <textarea class="form-control content-editor" [(ngModel)]="blockForm.content" rows="8"
+                placeholder="https://ornek.com/foto1.jpg&#10;https://ornek.com/foto2.jpg"></textarea>
+    </div>
+
+    <div class="form-check-row">
+      <label class="check-label">
+        <input type="checkbox" [(ngModel)]="blockForm.isActive">
+        <span>Blok aktif (sayfada görünür)</span>
+      </label>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showBlockForm=false">İptal</button>
+    <button class="btn btn-primary" (click)="saveBlock()" [disabled]="blockSaving">
+      <i class="fa-solid fa-circle-notch fa-spin" *ngIf="blockSaving"></i>
+      {{ blockSaving ? 'Kaydediliyor...' : 'Bloğu Kaydet' }}
+    </button>
+  </div>
+</div>
+
+<!-- Delete page confirm -->
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Sayfayı Sil</h3>
+    <p><strong>{{ confirmDelete.title }}</strong> sayfasını ve tüm içerik bloklarını silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button>
+      <button class="btn btn-danger" (click)="doDelete()">Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete block confirm -->
+<div class="modal-overlay" *ngIf="confirmBlockDelete" (click)="confirmBlockDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Bloğu Sil</h3>
+    <p>Bu içerik bloğunu silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="confirmBlockDelete=null">İptal</button>
+      <button class="btn btn-danger" (click)="doDeleteBlock()">Sil</button>
+    </div>
+  </div>
+</div>

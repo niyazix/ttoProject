@@ -1,0 +1,59 @@
+<div class="page-header">
+  <div><h1>Kullanıcılar</h1><p>Sistem kullanıcılarını yönetin</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Kullanıcı</button>
+</div>
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Kullanıcı Adı</th><th>Roller</th><th>Durum</th><th style="width:80px">İşlem</th></tr></thead>
+    <tbody>
+      <tr *ngIf="!items.length"><td colspan="6" class="empty-cell">Kullanıcı bulunamadı.</td></tr>
+      <tr *ngFor="let u of items">
+        <td>
+          <div class="user-cell">
+            <div class="user-av">{{ u.firstName?.charAt(0) }}{{ u.lastName?.charAt(0) }}</div>
+            <span class="fw-500">{{ u.firstName }} {{ u.lastName }}</span>
+          </div>
+        </td>
+        <td>{{ u.email }}</td>
+        <td><code style="font-size:12px">{{ u.username }}</code></td>
+        <td>
+          <span class="badge badge-info mr-1" *ngFor="let r of u.roles">{{ r }}</span>
+          <span *ngIf="!u.roles?.length" class="text-muted">—</span>
+        </td>
+        <td>
+          <span class="badge" [class.badge-success]="u.isActive" [class.badge-danger]="!u.isActive">{{ u.isActive ? 'Aktif' : 'Pasif' }}</span>
+        </td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="Aktif/Pasif" (click)="toggleActive(u)">
+              <i class="fa-solid" [class.fa-toggle-on]="u.isActive" [class.fa-toggle-off]="!u.isActive"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon text-danger" title="Sil" (click)="delete(u)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer" *ngIf="showForm">
+  <div class="drawer-header"><h3>Yeni Kullanıcı</h3><button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="drawer-body">
+    <div class="form-group"><label>Ad</label><input type="text" class="form-control" [(ngModel)]="formData.firstName"></div>
+    <div class="form-group"><label>Soyad</label><input type="text" class="form-control" [(ngModel)]="formData.lastName"></div>
+    <div class="form-group"><label>E-posta</label><input type="email" class="form-control" [(ngModel)]="formData.email"></div>
+    <div class="form-group"><label>Kullanıcı Adı</label><input type="text" class="form-control" [(ngModel)]="formData.username"></div>
+    <div class="form-group"><label>Şifre</label><input type="password" class="form-control" [(ngModel)]="formData.password"></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-primary" (click)="saveForm()" [disabled]="saving"><i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>{{ saving ? 'Kaydediliyor...' : 'Kaydet' }}</button>
+  </div>
+</div>
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Kullanıcıyı Sil</h3><p><strong>{{ confirmDelete.firstName }} {{ confirmDelete.lastName }}</strong> kullanıcısını silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions"><button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button><button class="btn btn-danger" (click)="doDelete()">Sil</button></div>
+  </div>
+</div>

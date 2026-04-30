@@ -1,0 +1,59 @@
+<div class="admin-shell" [class.collapsed]="sidebarCollapsed">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fa-solid fa-atom"></i></div>
+      <span class="logo-text" *ngIf="!sidebarCollapsed">TTO Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a *ngFor="let item of visibleItems()"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: item.route === '/admin'}"
+         class="nav-item"
+         [title]="sidebarCollapsed ? item.label : ''">
+        <i class="fa-solid {{ item.icon }}"></i>
+        <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <button class="sidebar-logout" (click)="logout()" [title]="sidebarCollapsed ? 'Çıkış' : ''">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span *ngIf="!sidebarCollapsed">Çıkış Yap</span>
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-area">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="fa-solid" [class.fa-bars]="sidebarCollapsed" [class.fa-bars-staggered]="!sidebarCollapsed"></i>
+      </button>
+
+      <div class="topbar-right">
+        <a routerLink="/" target="_blank" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>Siteye Git</span>
+        </a>
+        <div class="user-chip">
+          <div class="user-avatar">
+            {{ userInitials }}
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ auth.currentUser()?.fullName }}</span>
+            <span class="user-role">{{ auth.currentUser()?.roles?.[0] ?? '' }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

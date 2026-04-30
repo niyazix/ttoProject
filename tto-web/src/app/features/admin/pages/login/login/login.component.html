@@ -1,0 +1,68 @@
+<div class="login-page">
+  <div class="login-left">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-atom"></i></div>
+      <div>
+        <h1>TTO</h1>
+        <p>Teknoloji Transfer Ofisi</p>
+      </div>
+    </div>
+    <div class="tagline">
+      <h2>İnovasyonu<br>Birlikte İnşa<br>Ediyoruz</h2>
+      <p>Araştırmadan ticarileşmeye uzanan yolculukta güvenilir partneriniz.</p>
+    </div>
+    <div class="dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Yönetici Girişi</h2>
+        <p>Devam etmek için giriş yapın.</p>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="error">
+        <i class="fa-solid fa-circle-exclamation"></i>{{ error }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label>E-posta Adresi</label>
+          <div class="input-icon">
+            <i class="fa-solid fa-envelope"></i>
+            <input formControlName="email" type="email" class="form-control"
+                   [class.is-invalid]="isInvalid('email')"
+                   placeholder="ornek@tto.edu.tr">
+          </div>
+          <span class="form-error" *ngIf="isInvalid('email')">Geçerli bir e-posta girin.</span>
+        </div>
+
+        <div class="form-group">
+          <label>Şifre</label>
+          <div class="input-icon">
+            <i class="fa-solid fa-lock"></i>
+            <input formControlName="password" [type]="showPass ? 'text' : 'password'"
+                   class="form-control" [class.is-invalid]="isInvalid('password')"
+                   placeholder="••••••••">
+            <button type="button" class="pass-toggle" (click)="showPass = !showPass">
+              <i class="fa-solid" [class.fa-eye]="!showPass" [class.fa-eye-slash]="showPass"></i>
+            </button>
+          </div>
+          <span class="form-error" *ngIf="isInvalid('password')">Şifre zorunludur.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" [disabled]="loading">
+          <i class="fa-solid fa-circle-notch fa-spin" *ngIf="loading"></i>
+          <i class="fa-solid fa-right-to-bracket"    *ngIf="!loading"></i>
+          {{ loading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
+        </button>
+      </form>
+
+      <div class="back-link">
+        <a routerLink="/"><i class="fa-solid fa-arrow-left fa-xs"></i> Siteye Dön</a>
+      </div>
+    </div>
+  </div>
+</div>

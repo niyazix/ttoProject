@@ -1,0 +1,86 @@
+<div class="page-header">
+  <div>
+    <h1>İletişim Mesajları</h1>
+    <p>Toplam {{ total }} mesaj</p>
+  </div>
+  <label class="toggle-filter">
+    <input type="checkbox" [(ngModel)]="unreadOnly" (change)="page=1; load()">
+    <span>Yalnızca okunmamışlar</span>
+  </label>
+</div>
+
+<div class="contact-layout">
+
+  <!-- List -->
+  <div class="msg-list card">
+    <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+    <div class="empty-cell" *ngIf="!loading && !items.length">Mesaj bulunamadı.</div>
+    <div class="msg-item" *ngFor="let m of items"
+         [class.active]="selected?.id === m.id"
+         [class.unread]="!m.isRead"
+         (click)="open(m)">
+      <div class="msg-avatar">{{ m.fullName?.charAt(0) }}</div>
+      <div class="msg-info">
+        <div class="msg-from">
+          {{ m.fullName }}
+          <span class="unread-dot" *ngIf="!m.isRead"></span>
+        </div>
+        <div class="msg-subject">{{ m.subject }}</div>
+        <div class="msg-date">{{ formatDate(m.createdAt) }}</div>
+      </div>
+      <div class="msg-badges">
+        <span class="badge badge-success" *ngIf="m.isReplied">Yanıtlandı</span>
+      </div>
+    </div>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="btn btn-ghost btn-sm" [disabled]="page===1" (click)="goPage(page-1)"><i class="fa-solid fa-chevron-left"></i></button>
+      <span>{{ page }} / {{ totalPages }}</span>
+      <button class="btn btn-ghost btn-sm" [disabled]="page===totalPages" (click)="goPage(page+1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <!-- Detail -->
+  <div class="msg-detail card" *ngIf="selected">
+    <div class="detail-header">
+      <div class="detail-from">
+        <div class="msg-avatar lg">{{ selected.fullName?.charAt(0) }}</div>
+        <div>
+          <strong>{{ selected.fullName }}</strong>
+          <a [href]="'mailto:'+selected.email" class="detail-email">{{ selected.email }}</a>
+          <span *ngIf="selected.phone" class="detail-phone">{{ selected.phone }}</span>
+        </div>
+      </div>
+      <span class="detail-date">{{ formatDate(selected.createdAt) }}</span>
+    </div>
+    <h3 class="detail-subject">{{ selected.subject }}</h3>
+    <div class="detail-body">{{ selected.message }}</div>
+    <div class="detail-actions">
+      <a [href]="'mailto:'+selected.email+'?subject=Re: '+selected.subject" class="btn btn-primary">
+        <i class="fa-solid fa-reply"></i> E-posta ile Yanıtla
+      </a>
+      <button class="btn btn-outline" (click)="markReplied(selected)" [disabled]="selected.isReplied">
+        <i class="fa-solid fa-check"></i> {{ selected.isReplied ? 'Yanıtlandı' : 'Yanıtlandı Olarak İşaretle' }}
+      </button>
+      <button class="btn btn-ghost text-danger" (click)="delete(selected)">
+        <i class="fa-solid fa-trash"></i> Sil
+      </button>
+    </div>
+  </div>
+
+  <div class="msg-empty card" *ngIf="!selected">
+    <i class="fa-regular fa-envelope-open"></i>
+    <p>Okumak için bir mesaj seçin.</p>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Mesajı Sil</h3>
+    <p>Bu mesajı kalıcı olarak silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button>
+      <button class="btn btn-danger" (click)="doDelete()">Sil</button>
+    </div>
+  </div>
+</div>

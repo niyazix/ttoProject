@@ -1,0 +1,33 @@
+<div class="dynamic-page">
+
+  <div *ngIf="loading" class="dp-loading">
+    <span>Yükleniyor...</span>
+  </div>
+
+  <div *ngIf="notFound && !loading" class="dp-not-found">
+    <h2>Sayfa bulunamadı</h2>
+    <p>Aradığınız sayfa mevcut değil veya yayında değil.</p>
+  </div>
+
+  <ng-container *ngIf="page && !loading">
+    <div class="dp-header">
+      <h1>{{ page.title }}</h1>
+    </div>
+
+    <div class="dp-blocks">
+      <ng-container *ngFor="let block of page.contentBlocks">
+
+        <div *ngIf="isRich(block.blockType)"
+             class="dp-block dp-block--{{ block.blockType }}"
+             [innerHTML]="trust(block.content)">
+        </div>
+
+        <div *ngIf="isImage(block.blockType)" class="dp-block dp-block--image">
+          <img [src]="block.content" alt="" />
+        </div>
+
+      </ng-container>
+    </div>
+  </ng-container>
+
+</div>

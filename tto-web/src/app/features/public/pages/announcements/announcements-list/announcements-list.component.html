@@ -1,0 +1,49 @@
+<!-- PAGE HEADER -->
+<section class="page-hero">
+  <div class="container">
+    <h1><i class="fa-solid fa-bullhorn"></i> Duyurular</h1>
+    <p>Teknoloji Transfer Ofisi'nden duyuru ve güncellemeler.</p>
+  </div>
+</section>
+
+<!-- LOADING -->
+<div class="loading-state container" *ngIf="loading">
+  <i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…
+</div>
+
+<!-- EMPTY -->
+<div class="empty-state container" *ngIf="!loading && !items.length">
+  <i class="fa-regular fa-bell"></i>
+  <p>Henüz duyuru bulunmuyor.</p>
+</div>
+
+<!-- LIST -->
+<section class="ann-list container" *ngIf="!loading && items.length">
+  <a class="ann-item" *ngFor="let a of items" [routerLink]="['/duyurular', a.slug]">
+    <div class="ann-icon" [class.pinned]="a.isPinned">
+      <i class="fa-solid" [class.fa-thumbtack]="a.isPinned" [class.fa-bell]="!a.isPinned"></i>
+    </div>
+    <div class="ann-body">
+      <div class="ann-meta">
+        <span class="ann-date"><i class="fa-regular fa-calendar"></i> {{ formatDate(a.publishDate || a.createdAt) }}</span>
+        <span class="pin-badge" *ngIf="a.isPinned">Sabit</span>
+      </div>
+      <h2>{{ a.title }}</h2>
+      <p *ngIf="a.summary">{{ a.summary }}</p>
+    </div>
+    <i class="fa-solid fa-chevron-right ann-arrow"></i>
+  </a>
+</section>
+
+<!-- PAGINATION -->
+<div class="pagination container" *ngIf="totalPages > 1">
+  <button class="page-btn" (click)="goPage(page - 1)" [disabled]="page === 1">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button class="page-btn" *ngFor="let p of pages"
+          [class.active]="p === page"
+          (click)="goPage(p)">{{ p }}</button>
+  <button class="page-btn" (click)="goPage(page + 1)" [disabled]="page === totalPages">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</div>

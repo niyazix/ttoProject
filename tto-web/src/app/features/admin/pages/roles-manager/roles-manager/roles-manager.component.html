@@ -1,0 +1,70 @@
+<div class="page-header">
+  <div><h1>Rol Yönetimi</h1><p>Roller ve izinleri dinamik olarak yönetin</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Rol</button>
+</div>
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead><tr><th>Rol Adı</th><th>Açıklama</th><th>Tür</th><th style="width:140px">İşlem</th></tr></thead>
+    <tbody>
+      <tr *ngIf="!roles.length"><td colspan="4" class="empty-cell">Rol bulunamadı.</td></tr>
+      <tr *ngFor="let r of roles">
+        <td><span class="fw-500">{{ r.name }}</span></td>
+        <td><span class="text-muted">{{ r.description || '—' }}</span></td>
+        <td><span class="badge" [class.badge-warning]="r.isSystem" [class.badge-neutral]="!r.isSystem">{{ r.isSystem ? 'Sistem' : 'Özel' }}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="İzinleri Düzenle" (click)="openPerms(r)"><i class="fa-solid fa-shield-halved"></i></button>
+            <button class="btn btn-ghost btn-icon" title="Düzenle" [disabled]="r.isSystem" (click)="!r.isSystem && openEdit(r)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-ghost btn-icon text-danger" title="Sil" [disabled]="r.isSystem" (click)="!r.isSystem && delete(r)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Role form drawer -->
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer" *ngIf="showForm">
+  <div class="drawer-header"><h3>{{ editRole ? 'Rolü Düzenle' : 'Yeni Rol' }}</h3><button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="drawer-body">
+    <div class="form-group"><label>Rol Adı</label><input type="text" class="form-control" [(ngModel)]="formData.name" placeholder="Örn: HaberEditörü"></div>
+    <div class="form-group"><label>Açıklama</label><textarea class="form-control" [(ngModel)]="formData.description" rows="3"></textarea></div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-primary" (click)="saveForm()" [disabled]="saving"><i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>{{ saving ? 'Kaydediliyor...' : 'Kaydet' }}</button>
+  </div>
+</div>
+
+<!-- Permissions drawer -->
+<div class="drawer-overlay" *ngIf="showPerms" (click)="showPerms=false"></div>
+<div class="drawer perm-drawer" *ngIf="showPerms">
+  <div class="drawer-header">
+    <h3><i class="fa-solid fa-shield-halved"></i> {{ permRole?.name }} — İzinler</h3>
+    <button (click)="showPerms=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="perm-module" *ngFor="let mod of modules">
+      <h4 class="mod-label">{{ mod | titlecase }}</h4>
+      <div class="perm-list">
+        <label class="perm-item" *ngFor="let p of permsByModule(mod)">
+          <input type="checkbox" [checked]="hasPermission(p.id)" (change)="togglePerm(p.id)">
+          <span class="perm-name">{{ p.description || p.action }}</span>
+          <code class="perm-key">{{ p.name }}</code>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-primary" (click)="showPerms=false">Tamam</button>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Rolü Sil</h3><p><strong>{{ confirmDelete.name }}</strong> rolünü silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions"><button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button><button class="btn btn-danger" (click)="doDelete()">Sil</button></div>
+  </div>
+</div>

@@ -1,0 +1,161 @@
+<div class="page-header">
+  <div><h1>Duyurular</h1><p>Toplam {{ total }} duyuru</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Duyuru</button>
+</div>
+
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead>
+      <tr><th>Başlık</th><th>Durum</th><th>Sabit</th><th>Yayın</th><th>Son Geçerlilik</th><th>👁</th><th style="width:110px">İşlem</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!items.length"><td colspan="7" class="empty-cell">Duyuru bulunamadı.</td></tr>
+      <tr *ngFor="let a of items">
+        <td>
+          <div class="clamp-1 fw-500">{{ a.title }}</div>
+          <div class="text-muted" style="font-size:11px">/duyurular/{{ a.slug }}</div>
+        </td>
+        <td>
+          <span class="badge" [class.badge-success]="a.isPublished" [class.badge-neutral]="!a.isPublished">
+            {{ a.isPublished ? 'Yayında' : 'Taslak' }}
+          </span>
+        </td>
+        <td><i class="fa-solid fa-thumbtack" [style.color]="a.isPinned ? 'var(--accent)' : 'var(--border)'"></i></td>
+        <td>{{ a.publishDate ? formatDate(a.publishDate) : '—' }}</td>
+        <td>
+          <span *ngIf="a.expiryDate" [class.text-danger]="isExpired(a.expiryDate)">{{ formatDate(a.expiryDate) }}</span>
+          <span *ngIf="!a.expiryDate">—</span>
+        </td>
+        <td>{{ a.viewCount }}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="Düzenle" (click)="openEdit(a)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-ghost btn-icon" (click)="togglePublish(a)">
+              <i class="fa-solid" [class.fa-eye]="!a.isPublished" [class.fa-eye-slash]="a.isPublished"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon text-danger" (click)="delete(a)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination" *ngIf="totalPages > 1">
+  <button class="btn btn-ghost btn-sm" [disabled]="page===1" (click)="goPage(page-1)"><i class="fa-solid fa-chevron-left"></i></button>
+  <span>{{ page }} / {{ totalPages }}</span>
+  <button class="btn btn-ghost btn-sm" [disabled]="page===totalPages" (click)="goPage(page+1)"><i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<!-- ─── Form Drawer ─── -->
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer drawer-xl" *ngIf="showForm">
+  <div class="drawer-header">
+    <h3>{{ editItem ? 'Duyuruyu Düzenle' : 'Yeni Duyuru' }}</h3>
+    <div class="drawer-tabs">
+      <button [class.active]="activeTab==='edit'"    (click)="activeTab='edit'">Düzenle</button>
+      <button [class.active]="activeTab==='preview'" (click)="activeTab='preview'">Önizleme</button>
+    </div>
+    <button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="drawer-body" *ngIf="activeTab==='edit'">
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Başlık <span class="req">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="form.title" (input)="onTitleChange()" placeholder="Duyuru başlığı">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Slug (URL)</label>
+        <div class="slug-wrap">
+          <span class="slug-prefix">/duyurular/</span>
+          <input type="text" class="form-control" [(ngModel)]="form.slug">
+        </div>
+      </div>
+      <div class="form-group w-200">
+        <label>Kategori</label>
+        <select class="form-control" [(ngModel)]="form.categoryId">
+          <option [ngValue]="null">— Seçin —</option>
+          <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Yayın Tarihi</label>
+        <input type="datetime-local" class="form-control" [(ngModel)]="form.publishDate">
+      </div>
+      <div class="form-group flex-1">
+        <label>Son Geçerlilik Tarihi</label>
+        <input type="datetime-local" class="form-control" [(ngModel)]="form.expiryDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Kısa Açıklama</label>
+      <textarea class="form-control" [(ngModel)]="form.summary" rows="2" placeholder="Özet..."></textarea>
+    </div>
+    <div class="form-group">
+      <div class="editor-toolbar">
+        <span class="toolbar-label">İçerik (HTML)</span>
+        <div class="toolbar-btns">
+          <button type="button" (click)="insertTag('h2')">H2</button>
+          <button type="button" (click)="insertTag('h3')">H3</button>
+          <button type="button" (click)="insertTag('p')">P</button>
+          <button type="button" (click)="insertTag('strong')"><b>B</b></button>
+          <button type="button" (click)="insertTag('em')"><i>I</i></button>
+          <button type="button" (click)="insertTag('ul')">UL</button>
+          <button type="button" (click)="insertTag('li')">LI</button>
+          <button type="button" (click)="insertTag('a')">Link</button>
+        </div>
+      </div>
+      <textarea id="ann-content" class="form-control content-editor" [(ngModel)]="form.content"
+                rows="14" placeholder="HTML içerik..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Kapak Görseli URL</label>
+      <input type="text" class="form-control" [(ngModel)]="form.coverImageUrl" placeholder="https://...">
+    </div>
+    <div class="form-check-row">
+      <label class="check-label">
+        <input type="checkbox" [(ngModel)]="form.isPinned">
+        <span>Sayfanın üstünde sabitle (önemli duyuru)</span>
+      </label>
+    </div>
+    <div class="cover-preview" *ngIf="form.coverImageUrl">
+      <img [src]="form.coverImageUrl" alt="kapak">
+    </div>
+  </div>
+
+  <div class="drawer-body preview-body" *ngIf="activeTab==='preview'">
+    <h2 style="font-size:24px;margin-bottom:10px">{{ form.title || 'Başlık' }}</h2>
+    <p style="color:var(--text-muted);margin-bottom:20px">{{ form.summary }}</p>
+    <img *ngIf="form.coverImageUrl" [src]="form.coverImageUrl" style="max-width:100%;border-radius:8px;margin-bottom:16px" alt="">
+    <div class="preview-content" [innerHTML]="form.content"></div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-outline" (click)="save(false)" [disabled]="saving">
+      <i class="fa-solid fa-floppy-disk"></i> Taslak Kaydet
+    </button>
+    <button class="btn btn-primary" (click)="save(true)" [disabled]="saving">
+      <i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>
+      <i class="fa-solid fa-paper-plane" *ngIf="!saving"></i>
+      {{ saving ? 'Kaydediliyor...' : 'Kaydet & Yayınla' }}
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Duyuruyu Sil</h3>
+    <p><strong>{{ confirmDelete.title }}</strong> silinsin mi?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button>
+      <button class="btn btn-danger" (click)="doDelete()">Sil</button>
+    </div>
+  </div>
+</div>

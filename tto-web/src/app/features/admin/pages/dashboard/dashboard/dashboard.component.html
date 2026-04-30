@@ -1,0 +1,122 @@
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+  <div class="welcome-text">
+    <h1>Hoş geldiniz, {{ auth.currentUser()?.firstName }} 👋</h1>
+    <p>{{ today }} — İşte sitenizin güncel durumu.</p>
+  </div>
+  <a routerLink="/" target="_blank" class="btn btn-outline">
+    <i class="fa-solid fa-arrow-up-right-from-square"></i> Siteyi Görüntüle
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <a class="stat-card" *ngFor="let s of stats" [routerLink]="s.route">
+    <div class="stat-icon" [style.background]="s.bg">
+      <i class="fa-solid {{ s.icon }}" [style.color]="s.color"></i>
+    </div>
+    <div class="stat-body">
+      <div class="stat-num">{{ s.value }}</div>
+      <div class="stat-label">{{ s.label }}</div>
+    </div>
+    <i class="fa-solid fa-arrow-right stat-arrow"></i>
+  </a>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-title">Hızlı İşlemler</div>
+<div class="quick-grid">
+  <a *ngFor="let q of quickActions" [routerLink]="q.route" class="quick-card" [style.--qc]="q.color">
+    <div class="quick-icon"><i class="fa-solid {{ q.icon }}"></i></div>
+    <span>{{ q.label }}</span>
+  </a>
+</div>
+
+<!-- Content panels -->
+<div class="dash-grid">
+
+  <!-- Recent News -->
+  <div class="card">
+    <div class="card__header flex-between">
+      <span class="panel-title"><i class="fa-solid fa-newspaper"></i> Son Haberler</span>
+      <a routerLink="/admin/news" class="btn btn-ghost btn-sm">Tümünü Gör</a>
+    </div>
+    <div class="card__body p0">
+      <div class="empty-msg" *ngIf="!recentNews.length">
+        <i class="fa-regular fa-newspaper"></i><span>Henüz haber yok.</span>
+      </div>
+      <div class="content-row" *ngFor="let n of recentNews">
+        <div class="thumb-box" [style.backgroundImage]="n.coverImageUrl ? 'url('+n.coverImageUrl+')' : ''">
+          <i *ngIf="!n.coverImageUrl" class="fa-solid fa-image"></i>
+        </div>
+        <div class="row-info">
+          <div class="row-title">{{ n.title }}</div>
+          <div class="row-meta">{{ formatDate(n.publishDate || n.createdAt) }}</div>
+        </div>
+        <span class="badge" [class.badge-success]="n.isPublished" [class.badge-neutral]="!n.isPublished">
+          {{ n.isPublished ? 'Yayında' : 'Taslak' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Announcements -->
+  <div class="card">
+    <div class="card__header flex-between">
+      <span class="panel-title"><i class="fa-solid fa-bullhorn"></i> Son Duyurular</span>
+      <a routerLink="/admin/announcements" class="btn btn-ghost btn-sm">Tümünü Gör</a>
+    </div>
+    <div class="card__body p0">
+      <div class="empty-msg" *ngIf="!recentAnnouncements.length">
+        <i class="fa-regular fa-bell"></i><span>Henüz duyuru yok.</span>
+      </div>
+      <div class="content-row" *ngFor="let a of recentAnnouncements">
+        <div class="ann-dot" [class.pinned]="a.isPinned">
+          <i class="fa-solid" [class.fa-thumbtack]="a.isPinned" [class.fa-bell]="!a.isPinned"></i>
+        </div>
+        <div class="row-info">
+          <div class="row-title">{{ a.title }}</div>
+          <div class="row-meta">{{ formatDate(a.publishDate || a.createdAt) }}</div>
+        </div>
+        <span class="badge" [class.badge-success]="a.isPublished" [class.badge-neutral]="!a.isPublished">
+          {{ a.isPublished ? 'Yayında' : 'Taslak' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unread Messages -->
+  <div class="card">
+    <div class="card__header flex-between">
+      <span class="panel-title"><i class="fa-solid fa-envelope"></i> Yeni Mesajlar</span>
+      <a routerLink="/admin/contact" class="btn btn-ghost btn-sm">Tümünü Gör</a>
+    </div>
+    <div class="card__body p0">
+      <div class="empty-msg" *ngIf="!unreadMsgs.length">
+        <i class="fa-regular fa-envelope-open"></i><span>Okunmamış mesaj yok.</span>
+      </div>
+      <div class="msg-row" *ngFor="let m of unreadMsgs">
+        <div class="msg-av">{{ m.fullName?.charAt(0) }}</div>
+        <div class="row-info">
+          <div class="row-title">{{ m.fullName }}</div>
+          <div class="row-meta">{{ m.subject }}</div>
+        </div>
+        <div class="msg-date">{{ formatDate(m.createdAt) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Info -->
+  <div class="card">
+    <div class="card__header">
+      <span class="panel-title"><i class="fa-solid fa-circle-info"></i> Sistem Bilgisi</span>
+    </div>
+    <div class="card__body sys-info">
+      <div class="sys-row" *ngFor="let row of sysInfo">
+        <span class="sys-key">{{ row.key }}</span>
+        <span class="sys-val" [class]="row.cls">{{ row.val }}</span>
+      </div>
+    </div>
+  </div>
+
+</div>

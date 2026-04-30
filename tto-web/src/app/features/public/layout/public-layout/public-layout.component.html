@@ -1,0 +1,131 @@
+<!-- HEADER -->
+<header class="site-header" [class.scrolled]="scrolled">
+  <div class="header-inner container">
+    <a class="logo" routerLink="/">
+      <div class="logo-icon"><i class="fa-solid fa-atom"></i></div>
+      <div class="logo-text">
+        <span class="logo-name">TTO</span>
+        <span class="logo-sub">Teknoloji Transfer Ofisi</span>
+      </div>
+    </a>
+
+    <nav class="nav-desktop">
+      <div class="nav-item" *ngFor="let item of menuItems"
+           [class.has-children]="item.children?.length">
+
+        <!-- Harici link -->
+        <a *ngIf="isExternal(item.url); else internalNav"
+           [href]="item.url"
+           [target]="item.openInNewTab ? '_blank' : '_self'"
+           rel="noopener noreferrer"
+           class="nav-link">
+          {{ item.title }}
+          <i *ngIf="item.children?.length" class="fa-solid fa-chevron-down fa-xs"></i>
+        </a>
+        <!-- Dahili / başlık -->
+        <ng-template #internalNav>
+          <a [routerLink]="routerLinkFor(item)"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: item.url === '/'}"
+             class="nav-link"
+             (click)="routerLinkFor(item) === null && $event.preventDefault()">
+            {{ item.title }}
+            <i *ngIf="item.children?.length" class="fa-solid fa-chevron-down fa-xs"></i>
+          </a>
+        </ng-template>
+
+        <div class="dropdown" *ngIf="item.children?.length">
+          <ng-container *ngFor="let child of item.children">
+            <a *ngIf="isExternal(child.url); else internalChild"
+               [href]="child.url"
+               [target]="child.openInNewTab ? '_blank' : '_self'"
+               rel="noopener noreferrer"
+               class="dropdown-item">{{ child.title }}</a>
+            <ng-template #internalChild>
+              <a [routerLink]="routerLinkFor(child)"
+                 class="dropdown-item"
+                 (click)="routerLinkFor(child) === null && $event.preventDefault()">{{ child.title }}</a>
+            </ng-template>
+          </ng-container>
+        </div>
+      </div>
+    </nav>
+
+    <button class="hamburger" (click)="toggleMobile()" [class.open]="mobileMenuOpen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE OVERLAY -->
+<div class="mobile-overlay" [class.open]="mobileMenuOpen" (click)="closeMobile()"></div>
+<nav class="mobile-menu" [class.open]="mobileMenuOpen">
+  <div class="mobile-header">
+    <span>Menü</span>
+    <button (click)="closeMobile()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <ng-container *ngFor="let item of menuItems">
+    <a *ngIf="isExternal(item.url); else mobileInternal"
+       [href]="item.url" [target]="item.openInNewTab ? '_blank' : '_self'"
+       class="mobile-link" (click)="closeMobile()">{{ item.title }}</a>
+    <ng-template #mobileInternal>
+      <a [routerLink]="routerLinkFor(item)" class="mobile-link" (click)="closeMobile()">{{ item.title }}</a>
+    </ng-template>
+    <ng-container *ngFor="let child of item.children">
+      <a *ngIf="isExternal(child.url); else mobileChildInternal"
+         [href]="child.url" [target]="child.openInNewTab ? '_blank' : '_self'"
+         class="mobile-link mobile-link--sub" (click)="closeMobile()">{{ child.title }}</a>
+      <ng-template #mobileChildInternal>
+        <a [routerLink]="routerLinkFor(child)" class="mobile-link mobile-link--sub" (click)="closeMobile()">{{ child.title }}</a>
+      </ng-template>
+    </ng-container>
+  </ng-container>
+</nav>
+
+<!-- CONTENT -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <i class="fa-solid fa-atom"></i>
+        <span>TTO</span>
+      </div>
+      <p>Teknoloji Transfer Ofisi olarak araştırma bulgularını ticarileştirmek, patent süreçlerini yönetmek ve inovasyonu desteklemek için çalışıyoruz.</p>
+      <div class="social-links">
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <h4>Hızlı Bağlantılar</h4>
+      <ng-container *ngFor="let item of menuItems">
+        <a *ngIf="isExternal(item.url); else footerInternal" [href]="item.url">{{ item.title }}</a>
+        <ng-template #footerInternal>
+          <a [routerLink]="routerLinkFor(item)">{{ item.title }}</a>
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="footer-contact">
+      <h4>İletişim</h4>
+      <p><i class="fa-solid fa-location-dot"></i> Üniversite Mah. Teknoloji Binası No:1</p>
+      <p><i class="fa-solid fa-phone"></i> +90 000 000 00 00</p>
+      <p><i class="fa-solid fa-envelope"></i> info&#64;tto.edu.tr</p>
+      <p><i class="fa-regular fa-clock"></i> Pzt–Cum, 09:00–17:00</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <span>© {{ year }} Teknoloji Transfer Ofisi. Tüm hakları saklıdır.</span>
+      <a routerLink="/admin/login">Yönetici Girişi</a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,54 @@
+<!-- LOADING -->
+<div class="loading-state container" *ngIf="loading">
+  <i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor…
+</div>
+
+<!-- NOT FOUND -->
+<div class="not-found container" *ngIf="!loading && notFound">
+  <i class="fa-solid fa-circle-exclamation"></i>
+  <h2>Duyuru bulunamadı</h2>
+  <a routerLink="/duyurular" class="btn btn-primary">← Duyurulara Dön</a>
+</div>
+
+<!-- ARTICLE -->
+<ng-container *ngIf="!loading && announcement">
+  <div class="ann-hero">
+    <div class="container">
+      <div class="breadcrumb">
+        <a routerLink="/">Anasayfa</a>
+        <i class="fa-solid fa-chevron-right fa-xs"></i>
+        <a routerLink="/duyurular">Duyurular</a>
+        <i class="fa-solid fa-chevron-right fa-xs"></i>
+        <span>{{ announcement.title }}</span>
+      </div>
+      <div class="ann-labels">
+        <span class="pin-badge" *ngIf="announcement.isPinned">
+          <i class="fa-solid fa-thumbtack"></i> Sabit Duyuru
+        </span>
+        <span class="expiry-badge" *ngIf="announcement.expiryDate">
+          <i class="fa-regular fa-clock"></i> Son: {{ formatDate(announcement.expiryDate) }}
+        </span>
+      </div>
+      <h1>{{ announcement.title }}</h1>
+      <div class="ann-meta">
+        <span><i class="fa-regular fa-calendar"></i> {{ formatDate(announcement.publishDate || announcement.createdAt) }}</span>
+        <span><i class="fa-solid fa-eye"></i> {{ announcement.viewCount }} görüntülenme</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ann-body container">
+    <div class="ann-layout">
+      <article class="ann-content">
+        <p class="ann-summary" *ngIf="announcement.summary">{{ announcement.summary }}</p>
+        <div class="ann-html" [innerHTML]="announcement.content"></div>
+      </article>
+
+      <aside class="ann-sidebar">
+        <a routerLink="/duyurular" class="back-btn">
+          <i class="fa-solid fa-arrow-left"></i> Tüm Duyurular
+        </a>
+      </aside>
+    </div>
+  </div>
+</ng-container>

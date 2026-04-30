@@ -1,0 +1,25 @@
+<div class="page-header">
+  <div><h1>Site Ayarları</h1><p>Genel site yapılandırmasını düzenleyin</p></div>
+  <div class="flex gap-2">
+    <span class="alert alert-success" *ngIf="saved"><i class="fa-solid fa-check"></i> Kaydedildi!</span>
+    <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+      <i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>
+      <i class="fa-solid fa-floppy-disk" *ngIf="!saving"></i>
+      {{ saving ? 'Kaydediliyor...' : 'Kaydet' }}
+    </button>
+  </div>
+</div>
+<div class="loading-row card card__body" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+<div class="settings-grid" *ngIf="!loading">
+  <div class="card settings-group" *ngFor="let group of groups">
+    <div class="card__header">
+      <i class="fa-solid fa-sliders"></i> {{ groupLabel(group) }}
+    </div>
+    <div class="card__body">
+      <div class="form-group" *ngFor="let s of grouped[group]">
+        <label>{{ s.description || s.settingKey }}</label>
+        <input type="text" class="form-control" [(ngModel)]="s.settingValue" [placeholder]="s.settingKey">
+      </div>
+    </div>
+  </div>
+</div>

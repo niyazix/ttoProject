@@ -1,0 +1,181 @@
+<div class="page-header">
+  <div><h1>Haberler</h1><p>Toplam {{ total }} haber</p></div>
+  <button class="btn btn-primary" (click)="openCreate()"><i class="fa-solid fa-plus"></i> Yeni Haber</button>
+</div>
+
+<div class="table-wrap">
+  <div class="loading-row" *ngIf="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Yükleniyor...</div>
+  <table class="tbl" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>Haber</th><th>Kategori</th><th>Yazar</th><th>Durum</th><th>Tarih</th><th>👁</th>
+        <th style="width:110px">İşlem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="!items.length"><td colspan="7" class="empty-cell">Haber bulunamadı.</td></tr>
+      <tr *ngFor="let n of items">
+        <td>
+          <div class="title-cell">
+            <div class="thumb" [style.backgroundImage]="n.coverImageUrl ? 'url('+n.coverImageUrl+')' : ''">
+              <i *ngIf="!n.coverImageUrl" class="fa-solid fa-image"></i>
+            </div>
+            <div>
+              <div class="fw-500 clamp-1">{{ n.title }}</div>
+              <div class="text-muted" style="font-size:11px">/haberler/{{ n.slug }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ n.categoryName || '—' }}</td>
+        <td>{{ n.author || '—' }}</td>
+        <td>
+          <span class="badge" [class.badge-success]="n.isPublished" [class.badge-neutral]="!n.isPublished">
+            {{ n.isPublished ? 'Yayında' : 'Taslak' }}
+          </span>
+          <span class="badge badge-warning" *ngIf="n.isFeatured" style="margin-left:4px">Öne Çıkan</span>
+        </td>
+        <td>{{ formatDate(n.publishDate || n.createdAt) }}</td>
+        <td>{{ n.viewCount }}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-ghost btn-icon" title="Düzenle" (click)="openEdit(n)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-ghost btn-icon" (click)="togglePublish(n)">
+              <i class="fa-solid" [class.fa-eye]="!n.isPublished" [class.fa-eye-slash]="n.isPublished"></i>
+            </button>
+            <button class="btn btn-ghost btn-icon text-danger" (click)="delete(n)"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination" *ngIf="totalPages > 1">
+  <button class="btn btn-ghost btn-sm" [disabled]="page===1" (click)="goPage(page-1)"><i class="fa-solid fa-chevron-left"></i></button>
+  <span>{{ page }} / {{ totalPages }}</span>
+  <button class="btn btn-ghost btn-sm" [disabled]="page===totalPages" (click)="goPage(page+1)"><i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<!-- ─── Form Drawer ─── -->
+<div class="drawer-overlay" *ngIf="showForm" (click)="showForm=false"></div>
+<div class="drawer drawer-xl" *ngIf="showForm">
+  <div class="drawer-header">
+    <h3>{{ editItem ? 'Haberi Düzenle' : 'Yeni Haber' }}</h3>
+    <div class="drawer-tabs">
+      <button [class.active]="activeTab==='edit'"    (click)="activeTab='edit'">Düzenle</button>
+      <button [class.active]="activeTab==='preview'" (click)="activeTab='preview'">Önizleme</button>
+    </div>
+    <button (click)="showForm=false"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="drawer-body" *ngIf="activeTab==='edit'">
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Başlık <span class="req">*</span></label>
+        <input type="text" class="form-control" [(ngModel)]="form.title" (input)="onTitleChange()" placeholder="Haber başlığı girin">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Slug (URL)</label>
+        <div class="slug-wrap">
+          <span class="slug-prefix">/haberler/</span>
+          <input type="text" class="form-control" [(ngModel)]="form.slug" placeholder="haber-adi">
+        </div>
+      </div>
+      <div class="form-group w-200">
+        <label>Yazar</label>
+        <input type="text" class="form-control" [(ngModel)]="form.author" placeholder="Ad Soyad">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Kategori</label>
+        <select class="form-control" [(ngModel)]="form.categoryId">
+          <option [ngValue]="null">— Kategori Seçin —</option>
+          <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="form-group w-220">
+        <label>Yayın Tarihi</label>
+        <input type="datetime-local" class="form-control" [(ngModel)]="form.publishDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Kısa Açıklama</label>
+      <textarea class="form-control" [(ngModel)]="form.summary" rows="2" placeholder="Liste görünümünde gösterilecek özet..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="editor-toolbar">
+        <span class="toolbar-label">İçerik (HTML)</span>
+        <div class="toolbar-btns">
+          <button type="button" (click)="insertTag('h2')">H2</button>
+          <button type="button" (click)="insertTag('h3')">H3</button>
+          <button type="button" (click)="insertTag('p')">P</button>
+          <button type="button" (click)="insertTag('strong')"><b>B</b></button>
+          <button type="button" (click)="insertTag('em')"><i>I</i></button>
+          <button type="button" (click)="insertTag('ul')">UL</button>
+          <button type="button" (click)="insertTag('li')">LI</button>
+          <button type="button" (click)="insertTag('a')">Link</button>
+          <button type="button" (click)="insertTag('blockquote')">Quote</button>
+        </div>
+      </div>
+      <textarea id="news-content" class="form-control content-editor" [(ngModel)]="form.content"
+                rows="16" placeholder="HTML içerik girin..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Kapak Görseli URL</label>
+        <input type="text" class="form-control" [(ngModel)]="form.coverImageUrl" placeholder="https://...">
+      </div>
+      <div class="form-group w-200">
+        <label>Etiketler (virgülle ayırın)</label>
+        <input type="text" class="form-control" [(ngModel)]="form.tags" placeholder="teknoloji, patent">
+      </div>
+    </div>
+
+    <div class="form-check-row">
+      <label class="check-label">
+        <input type="checkbox" [(ngModel)]="form.isFeatured">
+        <span>Öne çıkan haber olarak işaretle</span>
+      </label>
+    </div>
+
+    <div class="cover-preview" *ngIf="form.coverImageUrl">
+      <img [src]="form.coverImageUrl" alt="kapak görseli">
+    </div>
+  </div>
+
+  <div class="drawer-body preview-body" *ngIf="activeTab==='preview'">
+    <h2 style="font-size:26px;margin-bottom:10px">{{ form.title || 'Başlık' }}</h2>
+    <p style="color:var(--text-muted);margin-bottom:20px;font-size:15px">{{ form.summary }}</p>
+    <img *ngIf="form.coverImageUrl" [src]="form.coverImageUrl"
+         style="max-width:100%;border-radius:8px;margin-bottom:20px" alt="">
+    <div class="preview-content" [innerHTML]="form.content"></div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" (click)="showForm=false">İptal</button>
+    <button class="btn btn-outline" (click)="save(false)" [disabled]="saving">
+      <i class="fa-solid fa-floppy-disk"></i> Taslak Kaydet
+    </button>
+    <button class="btn btn-primary" (click)="save(true)" [disabled]="saving">
+      <i class="fa-solid fa-circle-notch fa-spin" *ngIf="saving"></i>
+      <i class="fa-solid fa-paper-plane" *ngIf="!saving"></i>
+      {{ saving ? 'Kaydediliyor...' : 'Kaydet & Yayınla' }}
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="confirmDelete" (click)="confirmDelete=null">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Haberi Sil</h3>
+    <p><strong>{{ confirmDelete.title }}</strong> başlıklı haberi silmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="confirmDelete=null">İptal</button>
+      <button class="btn btn-danger" (click)="doDelete()">Sil</button>
+    </div>
+  </div>
+</div>

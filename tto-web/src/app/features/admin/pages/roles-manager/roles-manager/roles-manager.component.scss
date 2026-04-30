@@ -1,0 +1,19 @@
+@use '../../../admin-shared' as *;
+
+.perm-drawer { width: 600px; }
+.perm-module { margin-bottom: 24px; }
+.mod-label {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text-muted);
+  margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.perm-list { display: flex; flex-direction: column; gap: 4px; }
+.perm-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: var(--radius); cursor: pointer;
+  transition: var(--transition);
+  &:hover { background: var(--bg); }
+  input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: var(--primary); }
+}
+.perm-name { flex: 1; font-size: 14px; }
+.perm-key  { font-size: 11px; color: var(--text-light); }

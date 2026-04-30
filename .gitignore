@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+appsettings.Development.json
+appsettings.Production.json
+
+# Secrets — appsettings.json'u repoya atma, örnek dosya kullan
+# appsettings.json   <-- ihtiyaca göre uncomment et
+
+# Node / Angular
+tto-web/node_modules/
+tto-web/dist/
+tto-web/.angular/
+
+# OS
+.DS_Store
+Thumbs.db
