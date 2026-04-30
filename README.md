@@ -9,7 +9,7 @@
 
 | Anasayfa | Admin Paneli — Giriş | Sayfa Yönetimi |
 |---|---|---|
-| [screenshots/login.png](https://github.com/niyazix/ttoProject/blob/main/screenshots/Anasayfa.png) | *(ekran görüntüsü ekleyin)* | *(ekran görüntüsü ekleyin)* |
+| [screenshots/anasayfa.png](https://github.com/niyazix/ttoProject/blob/main/screenshots/Anasayfa.png) | *[screenshots/login.png](https://github.com/niyazix/ttoProject/blob/main/screenshots/login.png)* | *[screenshots/dashboard.png](https://github.com/niyazix/ttoProject/blob/main/screenshots/dashboard.png)* |
 
 | Haber Yönetimi | Duyuru Yönetimi | Kullanıcı & Rol Yönetimi |
 |---|---|---|
